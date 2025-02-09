@@ -368,3 +368,124 @@
     ```
 
     Here, `DataProcessor` directly depends on the `APIClient` class, making it difficult to switch to a different data source or test the `DataProcessor` in isolation. Changes to `APIClient` could break `DataProcessor`.
+
+### Example which follows all the principles
+
+```swift
+// MARK: - Single Responsibility Principle (SRP)
+
+// Each class/protocol has one specific responsibility.
+
+// Protocol for sending notifications
+protocol NotificationSender {
+    func send(message: String, recipient: String)
+}
+
+// Protocol for formatting messages
+protocol MessageFormatter {
+    func format(message: String) -> String
+}
+
+// MARK: - Open/Closed Principle (OCP) & Liskov Substitution Principle (LSP)
+
+// Base class for different notification channels (open for extension, closed for modification).
+class BaseNotificationChannel: NotificationSender {
+    let formatter: MessageFormatter
+
+    init(formatter: MessageFormatter) {
+        self.formatter = formatter
+    }
+
+    func send(message: String, recipient: String) {
+        let formattedMessage = formatter.format(message: message)
+        sendMessage(formattedMessage: formattedMessage, recipient: recipient)
+    }
+
+    //Abstract method
+    func sendMessage(formattedMessage: String, recipient: String) {
+        fatalError("Abstract method must be implemented in sublcass")
+    }
+}
+
+// Subclasses for specific notification channels
+class EmailChannel: BaseNotificationChannel {
+    override func sendMessage(formattedMessage: String, recipient: String) {
+        print("Sending email to \(recipient) with message: \(formattedMessage)")
+        // Email sending logic here
+    }
+}
+
+class SMSChannel: BaseNotificationChannel {
+    override func sendMessage(formattedMessage: String, recipient: String) {
+        print("Sending SMS to \(recipient) with message: \(formattedMessage)")
+        // SMS sending logic here
+    }
+}
+
+// MARK: - Interface Segregation Principle (ISP)
+
+// Different formatters for various types of notifications
+class BasicFormatter: MessageFormatter {
+    func format(message: String) -> String {
+        return message
+    }
+}
+
+class UrgentFormatter: MessageFormatter {
+    func format(message: String) -> String {
+        return "URGENT: \(message.uppercased())"
+    }
+}
+
+// MARK: - Dependency Inversion Principle (DIP)
+
+// High-level module: Notification Service
+class NotificationService {
+    private let sender: NotificationSender
+
+    init(sender: NotificationSender) {
+        self.sender = sender
+    }
+
+    func sendNotification(message: String, recipient: String) {
+        sender.send(message: message, recipient: recipient)
+    }
+}
+
+// MARK: - Usage
+
+// Configure dependencies
+let basicFormatter = BasicFormatter()
+let urgentFormatter = UrgentFormatter()
+let emailChannel = EmailChannel(formatter: basicFormatter)
+let smsChannel = SMSChannel(formatter: urgentFormatter)
+
+// Inject dependencies
+let notificationServiceViaEmail = NotificationService(sender: emailChannel)
+let notificationServiceViaSMS = NotificationService(sender: smsChannel)
+
+// Send notifications
+notificationServiceViaEmail.sendNotification(message: "Hello, world!", recipient: "user@example.com")
+notificationServiceViaSMS.sendNotification(message: "Alert!", recipient: "+15551234567")
+```
+
+**Explanation of how the principles are applied:**
+
+*   **SRP:**
+    *   `NotificationSender`: Only responsible for sending notifications.
+    *   `MessageFormatter`: Only responsible for formatting messages.
+    *   `NotificationService`: Only responsible for orchestrating the sending of notifications using a `NotificationSender`.
+    *   `EmailChannel` and `SMSChannel`: Only responsible for sending message with Email and SMS
+*   **OCP:**  You can add new notification channels (e.g., push notifications) or message formatters without modifying the existing `NotificationService`, `EmailChannel` or `SMSChannel`.  The `BaseNotificationChannel` class allows you to extend it using inheritance.
+*   **LSP:** `EmailChannel` and `SMSChannel` can be used interchangeably with `BaseNotificationChannel` without breaking the application's behavior.  They fulfill the contract defined by the base class.
+*   **ISP:**  Instead of having one large `NotificationChannel` interface with methods that some channels might not implement, we have separate `NotificationSender` and `MessageFormatter` protocols. Channels only need to conform to the protocols relevant to them.
+*   **DIP:**  The `NotificationService` depends on abstractions (`NotificationSender`), not concrete implementations (`EmailChannel`, `SMSChannel`). This makes it easy to switch between different notification channels without modifying the `NotificationService`. The formatters are injected and used rather than created inside these classes.
+
+**Important Considerations:**
+
+*   **Over-Engineering:** SOLID principles should be applied judiciously.  Don't blindly apply them everywhere, as it can lead to over-engineering. Consider the complexity and potential for change in your application.
+*   **Real-World Complexity:**  This is a simplified example.  Real-world notification systems often involve more complex logic, error handling, and third-party integrations.
+*   **Testing:**  This design makes it easier to test the different components in isolation. You can mock the `NotificationSender` and `MessageFormatter` to test the `NotificationService`, and vice versa.
+*   **Flexibility:** The design is highly flexible and adaptable to future requirements.
+
+This example provides a foundation for understanding how the SOLID principles can be applied together in a Swift project. Remember to always consider the specific needs of your application and the trade-offs involved when applying these principles.
