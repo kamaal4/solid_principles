@@ -1,75 +1,126 @@
-The Single Responsibility Principle (SRP) is the first of the SOLID principles of object-oriented design[7][5]. Robert C. Martin introduced the SOLID principles, which aim to make software designs more modular, maintainable, and flexible[4][2]. The SRP specifically guides developers to create code that is easier to understand, modify, and maintain[3].
 
-The Single Responsibility Principle states: "A class should have one, and only one, reason to change"[1][2][3].
+## SOLID Principles With Swift
 
-**Key aspects of SRP:**
-*   Each class or module should have a single, well-defined responsibility, encapsulated within that class[3].
-*   A class should not have multiple responsibilities, as this can make it harder to understand and modify[3].
-*   Following SRP makes code easier to understand, maintain, and extend[3]. It also reduces the risk of introducing bugs and makes it easier to test individual components in isolation[3].
-*   SRP encourages the separation of concerns, making the code more modular and scalable[3].
+### 1. Single Responsibility Principle (SRP)
 
-**Benefits of adhering to SRP:**
-*   **Maintainability** SRP helps in creating code that is easier to maintain and update[3][5].
-*   **Testability** With SRP, it is easier to test individual components in isolation[3].
-*   **Reduced Bugs** SRP reduces the risk of introducing bugs when changes are made to the code[3].
-*   **Modularity** SRP encourages the separation of concerns, making the code more modular and scalable[3].
-*   **Version Control** SRP makes version control easier because updates to a feature only change related files[4].
+*   **Definition:** "A class should have one, and only one, reason to change."
+*   **Goal:** To promote high cohesion and low coupling, leading to easier maintenance and reduced risk of bugs.
 
-**Example of violating SRP:**
+### 2. Open/Closed Principle (OCP)
 
-```swift
-class Student {
-    var name: String
-    var email: String
-
-    init(name: String, email: String) {
-        self.name = name
-        self.email = email
+*   **Definition:** "Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification."
+*   **Goal:** To allow adding new functionality without altering existing code, preventing unexpected side effects.
+*   **How:** Achieved through abstraction and polymorphism (e.g., using interfaces/protocols and inheritance).
+*   **Example:**
+    ```swift
+    protocol Shape {
+        func area() -> Double
     }
 
-    func registerStudent() {
-        // Some logic
+    class Rectangle: Shape {
+        var width: Double
+        var height: Double
+
+        init(width: Double, height: Double) {
+            self.width = width
+            self.height = height
+        }
+
+        func area() -> Double {
+            return width * height
+        }
     }
 
-    func calculateStudentResults() {
-        // Some logic
+    class Circle: Shape {
+        var radius: Double
+
+        init(radius: Double) {
+            self.radius = radius
+        }
+
+        func area() -> Double {
+            return .pi * radius * radius
+        }
+    }
+    ```
+    Here we can add new shapes conforming to the `Shape` protocol without modifying existing shapes.
+
+### 3. Liskov Substitution Principle (LSP)
+
+*   **Definition:** "Objects of a superclass should be able to be replaced with objects of its subclasses without affecting the correctness of the program."
+*   **Goal:** Ensure inheritance is used correctly, maintaining the integrity of the program when subclasses are used in place of their superclasses.
+*   **How:** Subclasses must adhere to the contract of their superclasses, maintaining pre- and post-conditions.
+*   **Example (Violation):** Consider a `Bird` class with a `fly()` method. A `Penguin` class inheriting from `Bird` would violate LSP because penguins cannot fly. A better design would be to separate the flying behavior into a separate abstraction (e.g., a protocol) that only birds capable of flight implement.
+
+### 4. Interface Segregation Principle (ISP)
+
+*   **Definition:** "Clients should not be forced to depend on methods they do not use."
+*   **Goal:** Prevent classes from being forced to implement interfaces they don't need, leading to cleaner and more focused interfaces.
+*   **How:** Break down large interfaces into smaller, more specific ones, so that clients only need to implement the interfaces that are relevant to them.
+*   **Example:**
+    ```swift
+    protocol Worker {
+        func work()
+        func eat()
     }
 
-    func sendEmail() {
-        // Some logic
+    class Human: Worker {
+        func work() {
+           // Human Work Logic
+        }
+        func eat() {
+           // Human Eat Logic
+        }
     }
-}
-```
 
-In this example, the `Student` class has three responsibilities: registering students, calculating their results, and sending emails[5]. This violates the SRP because a class should only have one reason to change[5].
-
-**Example of applying SRP:**
-
-```swift
-class User {
-    var name: String
-    var email: String
-
-    init(name: String, email: String) {
-        self.name = name
-        self.email = email
+    class Robot: Worker {
+        func work() {
+            // Robot work logic
+        }
+        func eat() {
+           // Robot cant eat, so it should not implement this
+        }
     }
-}
-```
+    ```
+    Here `Robot` class is forced to implement `eat()` method, to avoid this scenario you can create separate interfaces `Workable` and `Eatable`.
 
-In this example, the `User` class has only one responsibility: to store and retrieve information about a user[2]. It has no other responsibilities, such as sending an email or validating the user’s information[2]. This makes it easy to understand and maintain[2].
+### 5. Dependency Inversion Principle (DIP)
 
-Citations:
-[1] https://www.bmc.com/blogs/solid-design-principles/
-[2] https://dev.to/marwan8/solid-principles-in-swift-a-practical-guide-1fgk
-[3] https://hackernoon.com/solid-learn-about-the-single-responsibility-principle-with-examples
-[4] https://stackademic.com/blog/the-solid-principles-with-practical-examples-in-ios-swift
-[5] https://www.freecodecamp.org/news/solid-principles-single-responsibility-principle-explained/
-[6] https://dev.to/bionik6/solid-principles-in-swift-single-responsibility-principle-4jcd
-[7] https://www.softwareyoga.com/solid-single-responsibility-principle/
-[8] https://gist.github.com/mjhassan/2a61c16c68d66fd43f24306a07900bc6
-[9] https://www.seeleycoder.com/blog/solid-part-1-single-responsibility-principle/
-[10] https://www.comviva.com/blog/solid-principles-for-ios-in-swift-enhancing-code-style-reusability/
-[11] https://www.youtube.com/watch?v=UQqY3_6Epbg
-[12] https://pyartez.github.io/architecture/solid-principles-in-swift-single-responsibility-principle.html
-[13] https://www.netguru.com/blog/solid-principles-1-single-responsibility-principle
+*   **Definition:**
+    *   "High-level modules should not depend on low-level modules. Both should depend on abstractions."
+    *   "Abstractions should not depend on details. Details should depend on abstractions."
+*   **Goal:** Decouple high-level modules from low-level modules, making the system more flexible and maintainable.
+*   **How:** Introduce abstractions (e.g., interfaces/protocols) between high-level and low-level modules, and depend on these abstractions instead of concrete implementations.
+*   **Example:**
+    ```swift
+    protocol DataProvider {
+        func getData() -> String
+    }
+
+    class APIClient: DataProvider {
+        func getData() -> String {
+            // Fetch data from API
+            return "Data from API"
+        }
+    }
+
+    class DataProcessor {
+        let dataProvider: DataProvider
+
+        init(dataProvider: DataProvider) {
+            self.dataProvider = dataProvider
+        }
+
+        func processData() {
+            let data = dataProvider.getData()
+            // Process the data
+            print("Processing data: \(data)")
+        }
+    }
+
+    // Usage
+    let apiClient = APIClient()
+    let dataProcessor = DataProcessor(dataProvider: apiClient)
+    dataProcessor.processData()
+    ```
+    `DataProcessor` depends on the `DataProvider` abstraction, not the concrete `APIClient`. This makes it easy to switch to a different data source (e.g., a local database) without modifying `DataProcessor`.
