@@ -1,6 +1,7 @@
 # SOLID Principles with Swift
 
 **Single Responsibility Principle**
+
 The Single Responsibility Principle (SRP) is the first of the SOLID principles, which are a set of guidelines for writing maintainable and scalable software[2][4]. Introduced by Robert C. Martin, the SOLID principles aim to make object-oriented designs more modular, readable, flexible, and reusable[2][4]. The SRP specifically guides developers to create code that is easier to understand, modify, and maintain[3].
 
 The Single Responsibility Principle states that a class should have one, and only one, reason to change[2][3][6]. In practice, this means each class or module should have a single, well-defined responsibility, encapsulating one part of the software's functionality[1][3]. By adhering to this principle, developers can avoid classes that become overly complex and difficult to test[6].
