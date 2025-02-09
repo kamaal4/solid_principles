@@ -1,4 +1,4 @@
-## SOLID Principles with Swift
+## SOLID Principles With Swift
 
 ### 1. Single Responsibility Principle (SRP)
 
